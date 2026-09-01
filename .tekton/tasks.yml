@@ -38,6 +38,29 @@ spec:
 apiVersion: tekton.dev/v1beta1
 kind: Task
 metadata:
+  name: flake8
+
+spec:
+  workspaces:
+    - name: source
+
+  steps:
+    - name: flake8
+      image: python:3.9-slim
+
+      workingDir: $(workspaces.source.path)
+
+      script: |
+        #!/bin/bash
+        set -e
+        python -m pip install --upgrade pip wheel
+        pip install flake8
+        flake8 .
+
+---
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
   name: nose
 
 spec:
@@ -61,4 +84,5 @@ spec:
         set -e
         python -m pip install --upgrade pip wheel
         pip install -r requirements.txt
+        pip install nose
         nosetests $(params.args)
